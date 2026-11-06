@@ -24,6 +24,8 @@ jobs:
           java-version: '17'
       - name: Prepare Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
       - name: Install Android 30 SDK and build tools
         run: sdkmanager "platforms;android-30" "build-tools;30.0.3"
       - name: Switch to Java 8 for legacy Android Gradle Plugin
