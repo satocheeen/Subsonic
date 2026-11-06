@@ -24,6 +24,7 @@
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
 	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 	<uses-feature android:name="android.hardware.bluetooth" android:required="false" />
@@ -46,7 +47,7 @@
 
 		<activity android:name="github.daneren2005.dsub.activity.SubsonicFragmentActivity"
 				  android:configChanges="orientation|keyboardHidden"
-				  android:launchMode="singleTask">
+				  android:launchMode="singleTask" android:exported="true">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
 				<category android:name="android.intent.category.LAUNCHER"/>
@@ -59,7 +60,7 @@
                   android:launchMode="singleTask"/>
 
         <activity android:name="github.daneren2005.dsub.activity.VoiceQueryReceiverActivity"
-                  android:launchMode="singleTask">
+                  android:launchMode="singleTask" android:exported="true">
             <intent-filter>
                 <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -83,7 +84,7 @@
 		<activity
 			android:name="github.daneren2005.dsub.activity.EditPlayActionActivity"
 			android:label="@string/tasker.start_playing"
-			android:icon="@drawable/launch">
+			android:icon="@drawable/launch" android:exported="true">
 
 			<intent-filter>
 				<action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
@@ -92,7 +93,7 @@
 
         <service android:name="github.daneren2005.dsub.service.DownloadService"
                  android:label="DSub Playback Service"
-                 android:foregroundServiceType="location"/>
+                 android:foregroundServiceType="mediaPlayback"/>
 
 		<service android:name="github.daneren2005.dsub.service.AutoMediaBrowserService"
 				 android:exported="true">
@@ -103,7 +104,7 @@
 		</service>
 
 		<service android:name="org.fourthline.cling.android.AndroidUpnpServiceImpl"/>
-		<service android:name="github.daneren2005.dsub.service.sync.AuthenticatorService">
+		<service android:name="github.daneren2005.dsub.service.sync.AuthenticatorService" android:exported="true">
 			<intent-filter>
 				<action android:name="android.accounts.AccountAuthenticator"/>
 			</intent-filter>
@@ -155,20 +156,20 @@
 		<service android:name="github.daneren2005.dsub.service.HeadphoneListenerService"
 			android:label="DSub Headphone Listener"/>
 		<receiver
-			android:name="github.daneren2005.dsub.receiver.BootReceiver">
+			android:name="github.daneren2005.dsub.receiver.BootReceiver" android:exported="true">
 			<intent-filter>
 				<action
 					android:name="android.intent.action.BOOT_COMPLETED" />
 			</intent-filter>
 		</receiver>
 
-        <receiver android:name="github.daneren2005.dsub.receiver.MediaButtonIntentReceiver">
+        <receiver android:name="github.daneren2005.dsub.receiver.MediaButtonIntentReceiver" android:exported="true">
         	<intent-filter>
 				<action android:name="android.intent.action.MEDIA_BUTTON" />
 			</intent-filter>
         </receiver>
 
-		<receiver android:name="github.daneren2005.dsub.receiver.A2dpIntentReceiver">
+		<receiver android:name="github.daneren2005.dsub.receiver.A2dpIntentReceiver" android:exported="true">
 			<intent-filter>
 				<action android:name="android.music.playstatusrequest"/>
 			</intent-filter>
@@ -176,7 +177,7 @@
 
         <receiver
 			android:name="github.daneren2005.dsub.provider.DSubWidget4x1"
-			android:label="@string/widget.4x1">
+			android:label="@string/widget.4x1" android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
@@ -184,7 +185,7 @@
         </receiver>
 		<receiver
 			android:name="github.daneren2005.dsub.provider.DSubWidget4x2"
-			android:label="@string/widget.4x2">
+			android:label="@string/widget.4x2" android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
@@ -192,7 +193,7 @@
         </receiver>
 		<receiver
 			android:name="github.daneren2005.dsub.provider.DSubWidget4x3"
-			android:label="@string/widget.4x3">
+			android:label="@string/widget.4x3" android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
@@ -200,7 +201,7 @@
         </receiver>
 		<receiver
 			android:name="github.daneren2005.dsub.provider.DSubWidget4x4"
-			android:label="@string/widget.4x4">
+			android:label="@string/widget.4x4" android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
@@ -208,7 +209,7 @@
         </receiver>
 
 		<receiver
-			android:name="github.daneren2005.dsub.receiver.PlayActionReceiver">
+			android:name="github.daneren2005.dsub.receiver.PlayActionReceiver" android:exported="true">
 
 			<intent-filter>
 				<action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
