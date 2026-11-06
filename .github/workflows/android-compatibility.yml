@@ -34,7 +34,7 @@ jobs:
           distribution: temurin
           java-version: '8'
       - name: Build FLOSS debug APK
-        run: ./gradlew --no-daemon --stacktrace assembleFlossDebug
+        run: bash gradlew --no-daemon --stacktrace assembleFlossDebug
       - name: Upload debug APK
         if: success()
         uses: actions/upload-artifact@v4
