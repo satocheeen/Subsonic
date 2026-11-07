@@ -9,6 +9,14 @@ allprojects {
         mavenCentral()
         // Legacy dependencies that have not been published to Maven Central.
         maven { url 'https://jcenter.bintray.com' }
-        maven { url 'https://4thline.org/m2' }
+        // The upstream Cling repository serves these legacy artifacts over HTTP only.
+        maven {
+            url 'http://4thline.org/m2'
+            allowInsecureProtocol = true
+            content {
+                includeGroup 'org.fourthline.cling'
+                includeGroup 'org.seamless'
+            }
+        }
     }
 }
