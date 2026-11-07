@@ -106,6 +106,9 @@ public class NowPlayingFragment extends SubsonicFragment implements OnGestureLis
 	private TextView positionTextView;
 	private TextView durationTextView;
 	private TextView statusTextView;
+	private TextView artistNameTextView;
+	private TextView albumNameTextView;
+	private View lyricsButton;
 	private SeekBar progressBar;
 	private AutoRepeatButton previousButton;
 	private AutoRepeatButton nextButton;
@@ -176,6 +179,13 @@ public class NowPlayingFragment extends SubsonicFragment implements OnGestureLis
 		positionTextView = (TextView)rootView.findViewById(R.id.download_position);
 		durationTextView = (TextView)rootView.findViewById(R.id.download_duration);
 		statusTextView = (TextView)rootView.findViewById(R.id.download_status);
+        artistNameTextView = (TextView) rootView.findViewById(R.id.download_artist_name);
+        albumNameTextView = (TextView) rootView.findViewById(R.id.download_album_name);
+        lyricsButton = rootView.findViewById(R.id.download_lyrics);
+        artistNameTextView.setOnClickListener(v -> openCurrentTrackAction(R.id.menu_show_artist));
+        albumNameTextView.setOnClickListener(v -> openCurrentTrackAction(R.id.menu_show_album));
+        lyricsButton.setOnClickListener(v -> openCurrentTrackAction(R.id.menu_lyrics));
+        updateTrackLinks(null);
 		progressBar = (SeekBar)rootView.findViewById(R.id.download_progress_bar);
 		previousButton = (AutoRepeatButton)rootView.findViewById(R.id.download_previous);
 		nextButton = (AutoRepeatButton)rootView.findViewById(R.id.download_next);
@@ -555,6 +565,41 @@ public class NowPlayingFragment extends SubsonicFragment implements OnGestureLis
 
 		return menuItemSelected(menuItem.getItemId(), downloadFile);
 	}
+
+    private void openCurrentTrackAction(int action) {
+        // Resolve on each tap so a track change never leaves a shortcut pointing at the old song.
+        DownloadService service = getDownloadService();
+        DownloadFile playing = service == null ? null : service.getCurrentPlaying();
+        if (playing != null) menuItemSelected(action, playing);
+    }
+
+    private static boolean hasText(String text) {
+        return text != null && !text.trim().isEmpty();
+    }
+
+    private void updateTrackLinks(Entry song) {
+        if (artistNameTextView == null) return;
+        boolean hasSong = song != null;
+        rootView.findViewById(R.id.download_track_links).setVisibility(hasSong ? View.VISIBLE : View.GONE);
+        String artist = hasSong ? song.getArtist() : null;
+        String album = hasSong ? song.getAlbum() : null;
+        artistNameTextView.setText(artist);
+        albumNameTextView.setText(album);
+        artistNameTextView.setVisibility(hasText(artist) ? View.VISIBLE : View.GONE);
+        albumNameTextView.setVisibility(hasText(album) ? View.VISIBLE : View.GONE);
+        boolean artistTarget = hasSong && (Util.isTagBrowsing(context) ? hasText(song.getArtistId())
+                : hasText(song.getGrandParent()) || hasText(song.getParent()));
+        boolean albumTarget = hasSong && hasText(Util.isTagBrowsing(context) ? song.getAlbumId() : song.getParent());
+        artistNameTextView.setEnabled(artistTarget);
+        albumNameTextView.setEnabled(albumTarget);
+        artistNameTextView.setAlpha(artistTarget ? 1f : 0.5f);
+        albumNameTextView.setAlpha(albumTarget ? 1f : 0.5f);
+        artistNameTextView.setContentDescription(getString(R.string.menu_show_artist) + ": " + (artist == null ? "" : artist));
+        albumNameTextView.setContentDescription(getString(R.string.download_menu_show_album) + ": " + (album == null ? "" : album));
+        boolean canLyrics = hasSong && !Util.isOffline(context) && hasText(artist) && hasText(song.getTitle());
+        lyricsButton.setEnabled(canLyrics);
+        lyricsButton.setAlpha(canLyrics ? 1f : 0.5f);
+    }
 
 	private boolean menuItemSelected(int menuItemId, final DownloadFile song) {
 		List<Entry> songs;
@@ -1256,6 +1301,7 @@ public class NowPlayingFragment extends SubsonicFragment implements OnGestureLis
 	}
 
 	private void setupSubtitle(int currentPlayingIndex) {
+		updateTrackLinks(currentPlaying == null ? null : currentPlaying.getSong());
 		if (currentPlaying != null) {
 			Entry song = currentPlaying.getSong();
 			songTitleTextView.setText(song.getTitle());
@@ -1376,22 +1422,11 @@ public class NowPlayingFragment extends SubsonicFragment implements OnGestureLis
 				statusTextView.setText(R.string.download_playerstate_buffering);
 				break;
 			default:
-				if(currentPlaying != null) {
-					Entry entry = currentPlaying.getSong();
-					if(entry.getAlbum() != null) {
-						String artist = "";
-						if (entry.getArtist() != null) {
-							artist = currentPlaying.getSong().getArtist() + " - ";
-						}
-						statusTextView.setText(artist + entry.getAlbum());
-					} else {
-						statusTextView.setText(null);
-					}
-				} else {
-					statusTextView.setText(null);
-				}
+                statusTextView.setText(null);
 				break;
 		}
+
+        statusTextView.setVisibility(hasText(statusTextView.getText().toString()) ? View.VISIBLE : View.GONE);
 
 		switch (playerState) {
 			case STARTED:
@@ -1415,6 +1450,7 @@ public class NowPlayingFragment extends SubsonicFragment implements OnGestureLis
 
 	@Override
 	public void onMetadataUpdate(Entry song, int fieldChange) {
+        updateTrackLinks(currentPlaying == null ? null : currentPlaying.getSong());
 		if(song != null && song.isStarred()) {
 			starButton.setImageDrawable(DrawableTint.getTintedDrawable(context, R.drawable.ic_toggle_star));
 		} else {

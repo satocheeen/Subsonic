@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/download_track_links" android:layout_width="match_parent"
+    android:layout_height="wrap_content" android:orientation="vertical"
+    android:paddingLeft="12dp" android:paddingRight="12dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical">
+        <!-- Match the 48dp lyrics button on the opposite side so text stays centered in the player. -->
+        <View android:layout_width="48dp" android:layout_height="1dp"
+            android:importantForAccessibility="no"/>
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:orientation="vertical">
+            <!-- Balance the 16dp right chevron, 8dp drawable gap and 6dp edge padding on the left. -->
+            <android.support.v7.widget.AppCompatTextView android:id="@+id/download_artist_name" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:minHeight="32dp" android:gravity="center"
+                android:singleLine="true" android:ellipsize="end" android:focusable="true"
+                android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="?android:attr/textColorPrimary"
+                android:drawableRight="@drawable/ic_track_chevron" android:drawablePadding="8dp"
+                android:paddingLeft="30dp" android:paddingRight="6dp"
+                android:background="?attr/selectableItemBackground"/>
+            <android.support.v7.widget.AppCompatTextView android:id="@+id/download_album_name" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:minHeight="32dp" android:gravity="center"
+                android:singleLine="true" android:ellipsize="end" android:focusable="true"
+                android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="?android:attr/textColorSecondary"
+                android:drawableRight="@drawable/ic_track_chevron" android:drawablePadding="8dp"
+                android:paddingLeft="30dp" android:paddingRight="6dp"
+                android:background="?attr/selectableItemBackground"/>
+        </LinearLayout>
+        <android.support.v7.widget.AppCompatImageButton android:id="@+id/download_lyrics"
+            android:layout_width="48dp" android:layout_height="48dp" android:padding="12dp"
+            android:contentDescription="@string/download.menu_lyrics"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/ic_lyrics" app:tint="?android:attr/textColorSecondary"/>
+    </LinearLayout>
+    <TextView android:id="@+id/download_status" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:gravity="center" android:singleLine="true"
+        android:ellipsize="end" android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="?android:textColorSecondary" android:visibility="gone"/>
+</LinearLayout>
