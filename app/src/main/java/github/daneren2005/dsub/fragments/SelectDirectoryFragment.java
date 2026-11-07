@@ -732,6 +732,7 @@ public class SelectDirectoryFragment extends SubsonicFragment implements Section
 				}
 			});
 		}
+		entryGridAdapter.setShowSongArt("starred".equals(albumListType));
 		entryGridAdapter.setOnItemClickedListener(this);
 		// Always show artist if this is not a artist we are viewing
 		if(!artist) {
