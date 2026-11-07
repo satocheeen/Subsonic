@@ -26,6 +26,9 @@ import github.daneren2005.dsub.domain.MusicDirectory.Entry;
 import github.daneren2005.dsub.service.MusicService;
 import github.daneren2005.dsub.service.MusicServiceFactory;
 import github.daneren2005.dsub.util.Constants;
+import github.daneren2005.dsub.util.DrawableTint;
+import github.daneren2005.dsub.util.LoadingTask;
+import github.daneren2005.dsub.util.Util;
 import github.daneren2005.dsub.util.TabBackgroundTask;
 import github.daneren2005.dsub.view.AlbumView;
 import github.daneren2005.dsub.view.GenreGroupView;
@@ -46,6 +49,7 @@ public class GenreBrowserFragment extends SubsonicFragment implements SectionAda
     private ArrayList<Entry> albums;
     private RecyclerView recycler;
     private TabBackgroundTask<ArrayList<Entry>> loadTask;
+    private LoadingTask<List<Entry>> shuffleTask;
     private Map<String, List<Entry>> groups = new LinkedHashMap<>();
 
     @Override
@@ -103,7 +107,23 @@ public class GenreBrowserFragment extends SubsonicFragment implements SectionAda
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (!primaryFragment) return;
+        if (!getArguments().containsKey(ARG_GROUP)) {
+            // The activity adds the server name afterwards with the same order, placing it to our right.
+            menu.add(Menu.NONE, R.id.menu_genre_shuffle_all, 0, R.string.genre_shuffle_all)
+                    .setIcon(DrawableTint.getDrawableRes(context, R.attr.shuffle))
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
         onFinishSetupOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_genre_shuffle_all) {
+            shuffleGenre();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -145,6 +165,56 @@ public class GenreBrowserFragment extends SubsonicFragment implements SectionAda
             }
         };
         loadTask.execute();
+    }
+
+    private void shuffleGenre() {
+        if (shuffleTask != null) return;
+        shuffleTask = new LoadingTask<List<Entry>>(context) {
+            @Override
+            protected List<Entry> doInBackground() throws Exception {
+                MusicService service = MusicServiceFactory.getMusicService(context);
+                List<Entry> songs = new ArrayList<>();
+                java.util.HashSet<String> seen = new java.util.HashSet<>();
+                int offset = 0;
+                while (!isCancelled()) {
+                    List<Entry> page = service.getSongsByGenre(genre, PAGE_SIZE, offset, context, this).getChildren();
+                    if (page.isEmpty()) break;
+                    int added = 0;
+                    for (Entry song : page) {
+                        if (seen.add(song.getId())) {
+                            added++;
+                            if (!song.isDirectory() && !song.isVideo()) songs.add(song);
+                        }
+                    }
+                    // Never silently play a partial list when a server ignores pagination.
+                    if (added == 0) throw new java.io.IOException("The server repeated a genre song page.");
+                    offset += page.size();
+                    updateProgress(getString(R.string.genre_shuffle_loading, songs.size()));
+                }
+                return songs;
+            }
+            @Override
+            protected void done(List<Entry> songs) {
+                shuffleTask = null;
+                if (songs.isEmpty()) {
+                    Util.toast(context, R.string.common_empty);
+                    return;
+                }
+                // Resolve all songs before replacing the queue, then use the existing shuffled playback path.
+                download(songs, false, false, true, false, true);
+            }
+            @Override
+            protected void error(Throwable error) {
+                shuffleTask = null;
+                super.error(error);
+            }
+            @Override
+            public void cancel() {
+                super.cancel();
+                shuffleTask = null;
+            }
+        };
+        shuffleTask.execute();
     }
 
     private String groupName(Entry album, int tab) {
@@ -210,6 +280,7 @@ public class GenreBrowserFragment extends SubsonicFragment implements SectionAda
 
     @Override
     public void onDestroyView() {
+        if (shuffleTask != null) { shuffleTask.cancel(); shuffleTask = null; }
         if (loadTask != null) { loadTask.cancel(); loadTask = null; }
         recycler = null;
         super.onDestroyView();
