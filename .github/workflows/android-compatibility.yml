@@ -12,16 +12,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ['17', '21']
     steps:
       - name: Checkout sources and ServerProxy
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Install Java 17 for Gradle and Android SDK tools
+      - name: Install Java ${{ matrix.java }} for Gradle and Android SDK tools
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: ${{ matrix.java }}
       - name: Prepare Android SDK
         uses: android-actions/setup-android@v3
         with:
@@ -34,5 +38,5 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: dsub-floss-debug
+          name: dsub-floss-debug-java-${{ matrix.java }}
           path: app/build/outputs/apk/**/*.apk
