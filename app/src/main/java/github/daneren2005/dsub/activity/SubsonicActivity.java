@@ -1194,6 +1194,8 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
                 } else if (id != lastSelectedPosition || !backStack.isEmpty()) {
                     lastSelectedPosition = id;
                     drawerItemSelected(id == R.id.drawer_starred ? "Starred" : id == R.id.drawer_genres ? "Genres" : "Playlist");
+                } else {
+                    closeNowPlaying();
                 }
                 updateBottomNavigation();
             });
