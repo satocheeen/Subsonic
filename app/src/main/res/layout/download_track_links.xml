@@ -8,19 +8,20 @@
         android:orientation="horizontal" android:gravity="center_vertical">
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
             android:layout_weight="1" android:orientation="vertical">
+            <!-- Balance the 16dp right chevron, 8dp drawable gap and 6dp edge padding on the left. -->
             <android.support.v7.widget.AppCompatTextView android:id="@+id/download_artist_name" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:minHeight="32dp" android:gravity="center"
                 android:singleLine="true" android:ellipsize="end" android:focusable="true"
                 android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="?android:attr/textColorPrimary"
                 android:drawableRight="@drawable/ic_track_chevron" android:drawablePadding="8dp"
-                android:paddingRight="6dp"
+                android:paddingLeft="30dp" android:paddingRight="6dp"
                 android:background="?attr/selectableItemBackground"/>
             <android.support.v7.widget.AppCompatTextView android:id="@+id/download_album_name" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:minHeight="32dp" android:gravity="center"
                 android:singleLine="true" android:ellipsize="end" android:focusable="true"
                 android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="?android:attr/textColorSecondary"
                 android:drawableRight="@drawable/ic_track_chevron" android:drawablePadding="8dp"
-                android:paddingRight="6dp"
+                android:paddingLeft="30dp" android:paddingRight="6dp"
                 android:background="?attr/selectableItemBackground"/>
         </LinearLayout>
         <android.support.v7.widget.AppCompatImageButton android:id="@+id/download_lyrics"
