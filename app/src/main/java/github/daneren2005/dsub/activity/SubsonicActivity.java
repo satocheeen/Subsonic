@@ -128,6 +128,7 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 	TextView drawerUserName;
 	int lastSelectedPosition = 0;
 	boolean showingTabs = true;
+    private int navigationServer = -1;
     private LinearLayout bottomNavigation;
     private TextView downloadIndicator;
     private final Runnable downloadStatus = new Runnable() {
@@ -252,6 +253,7 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 		if(drawerToggle != null) {
 			drawerToggle.syncState();
 		}
+		updateBottomNavigation();
 
 		if(Util.shouldStartOnHeadphones(this)) {
 			Intent serviceIntent = new Intent();
@@ -294,6 +296,13 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 	@Override
 	protected void onResume() {
 		super.onResume();
+        // Settings is a separate activity; rebuild browsing data if its server/mode changed.
+        int activeServer = Util.getActiveServer(this);
+        if (navigationServer != -1 && navigationServer != activeServer && !(this instanceof SettingsActivity)) {
+            restart(false);
+            return;
+        }
+        navigationServer = activeServer;
 
 		// If this is in onStart is causes crashes when rotating screen in offline mode
 		// Actual root cause of error is `drawerItemSelected(newFragment);` in the offline mode branch of code
