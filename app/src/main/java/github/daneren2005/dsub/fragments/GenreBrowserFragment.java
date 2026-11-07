@@ -28,7 +28,7 @@ import github.daneren2005.dsub.service.MusicServiceFactory;
 import github.daneren2005.dsub.util.Constants;
 import github.daneren2005.dsub.util.TabBackgroundTask;
 import github.daneren2005.dsub.view.AlbumView;
-import github.daneren2005.dsub.view.BasicListView;
+import github.daneren2005.dsub.view.GenreGroupView;
 import github.daneren2005.dsub.view.UpdateView;
 
 /** A genre stays the scope of all three browsing paths, including drill-downs. */
@@ -222,14 +222,26 @@ public class GenreBrowserFragment extends SubsonicFragment implements SectionAda
         }
         @Override public int getItemViewType(Serializable row) { return row instanceof Entry ? 1 : 2; }
         @Override public UpdateView.UpdateViewHolder onCreateSectionViewHolder(ViewGroup parent, int type) {
-            UpdateView view = type == 1 ? new AlbumView(context, false) : new BasicListView(context);
+            UpdateView view = type == 1 ? new AlbumView(context, false) : new GenreGroupView(context, getImageLoader());
             View more = view.findViewById(R.id.item_more);
             if (more != null) more.setVisibility(View.GONE);
             return new UpdateView.UpdateViewHolder(view);
         }
         @Override public void onBindViewHolder(UpdateView.UpdateViewHolder holder, Serializable row, int type) {
             if (type == 1) ((AlbumView) holder.getUpdateView()).setObject((Entry) row, getImageLoader());
-            else ((BasicListView) holder.getUpdateView()).setObject((String) row);
+            else {
+                List<Entry> members = groups.get((String) row);
+                Entry representative = null;
+                for (Entry album : members) {
+                    if (album.getCoverArt() != null && !album.getCoverArt().isEmpty()) {
+                        representative = album;
+                        break;
+                    }
+                }
+                GenreGroupView view = (GenreGroupView) holder.getUpdateView();
+                view.setObject((String) row, representative);
+                view.setAlbumCount(members.size());
+            }
         }
     }
 }
