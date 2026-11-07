@@ -23,18 +23,26 @@ import github.daneren2005.dsub.view.GenreView;
 import github.daneren2005.dsub.view.UpdateView;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import github.daneren2005.dsub.domain.MusicDirectory.Entry;
+import github.daneren2005.dsub.util.ImageLoader;
 
 public class GenreAdapter extends SectionAdapter<Genre> implements FastScroller.BubbleTextGetter{
 	public static int VIEW_TYPE_GENRE = 1;
 
-	public GenreAdapter(Context context, List<Genre> genres, OnItemClickedListener listener) {
+	private final ImageLoader imageLoader;
+	private final Map<String, Entry> covers = new HashMap<>();
+
+	public GenreAdapter(Context context, List<Genre> genres, ImageLoader imageLoader, OnItemClickedListener listener) {
         super(context, genres);
+		this.imageLoader = imageLoader;
 		this.onItemClickedListener = listener;
     }
 
 	@Override
 	public UpdateView.UpdateViewHolder onCreateSectionViewHolder(ViewGroup parent, int viewType) {
-		return new UpdateView.UpdateViewHolder(new GenreView(context));
+		return new UpdateView.UpdateViewHolder(new GenreView(context, imageLoader, covers));
 	}
 
 	@Override
