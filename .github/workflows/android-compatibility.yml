@@ -1,13 +1,15 @@
 name: Android compatibility baseline
 
 on:
-  push:
-    branches:
-      - fix/android17-compatibility
   pull_request:
     branches:
       - edge
   workflow_dispatch:
+
+# PR updates already trigger this workflow; avoid duplicate push builds.
+concurrency:
+  group: android-build-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
