@@ -22,6 +22,14 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.ImageView;
+import android.util.Log;
+import java.util.List;
+import java.util.Map;
+import github.daneren2005.dsub.domain.MusicDirectory.Entry;
+import github.daneren2005.dsub.service.MusicServiceFactory;
+import github.daneren2005.dsub.util.ImageLoader;
+import github.daneren2005.dsub.util.SilentBackgroundTask;
 import github.daneren2005.dsub.R;
 import github.daneren2005.dsub.domain.Genre;
 
@@ -32,10 +40,16 @@ public class GenreView extends UpdateView<Genre> {
 	private TextView songsView;
 	private TextView albumsView;
 
-	public GenreView(Context context) {
-		super(context, false);
-		LayoutInflater.from(context).inflate(R.layout.genre_list_item, this, true);
+	private final ImageLoader imageLoader;
+	private final Map<String, Entry> covers;
 
+	public GenreView(Context context, ImageLoader imageLoader, Map<String, Entry> covers) {
+		super(context, false);
+		LayoutInflater.from(context).inflate(R.layout.genre_cell_item, this, true);
+
+		this.imageLoader = imageLoader;
+		this.covers = covers;
+		coverArtView = findViewById(R.id.genre_art);
 		titleView = (TextView) findViewById(R.id.genre_name);
 		songsView = (TextView) findViewById(R.id.genre_songs);
 		albumsView = (TextView) findViewById(R.id.genre_albums);
@@ -43,6 +57,7 @@ public class GenreView extends UpdateView<Genre> {
 
 	public void setObjectImpl(Genre genre) {
 		titleView.setText(genre.getName());
+		loadCover(genre);
 
 		if(genre.getAlbumCount() != null) {
 			songsView.setVisibility(View.VISIBLE);
@@ -54,4 +69,43 @@ public class GenreView extends UpdateView<Genre> {
 			albumsView.setVisibility(View.GONE);
 		}
 	}
+
+    private void loadCover(final Genre genre) {
+        ((ImageView) coverArtView).setImageResource(R.drawable.unknown_album);
+        coverArtView.setContentDescription(null);
+        if (covers.containsKey(genre.getName())) {
+            showCover(covers.get(genre.getName()));
+            return;
+        }
+        // Only visible cards request a representative album; the genre list can appear immediately.
+        imageTask = new SilentBackgroundTask<Void>(context) {
+            private Entry album;
+            @Override
+            protected Void doInBackground() throws Exception {
+                List<Entry> entries = MusicServiceFactory.getMusicService(context)
+                        .getAlbumList("genres", genre.getName(), 1, 0, false, context, this).getChildren();
+                if (!entries.isEmpty()) album = entries.get(0);
+                return null;
+            }
+            @Override
+            protected void done(Void result) {
+                covers.put(genre.getName(), album);
+                // A recycled card must never receive the previous genre's jacket.
+                if (item == genre) showCover(album);
+            }
+            @Override
+            protected void error(Throwable error) {
+                // Artwork is optional: leave the card usable, without an error dialog.
+                Log.w(TAG, "Could not load genre cover", error);
+            }
+        };
+        imageTask.execute();
+    }
+
+    private void showCover(Entry album) {
+        if (album != null && album.getCoverArt() != null) {
+            imageTask = imageLoader.loadImage(coverArtView, album, false, true);
+        }
+    }
+
 }

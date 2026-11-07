@@ -34,6 +34,10 @@ import java.util.List;
 public class SelectGenreFragment extends SelectRecyclerFragment<Genre> {
 	private static final String TAG = SelectGenreFragment.class.getSimpleName();
 
+	public SelectGenreFragment() {
+		largeAlbums = true;
+	}
+
 	@Override
 	public int getOptionsMenu() {
 		return R.menu.empty;
@@ -41,7 +45,7 @@ public class SelectGenreFragment extends SelectRecyclerFragment<Genre> {
 
 	@Override
 	public SectionAdapter getAdapter(List<Genre> objs) {
-		return new GenreAdapter(context, objs, this);
+		return new GenreAdapter(context, objs, getImageLoader(), this);
 	}
 
 	@Override
@@ -56,12 +60,9 @@ public class SelectGenreFragment extends SelectRecyclerFragment<Genre> {
 	
 	@Override
 	public void onItemClicked(UpdateView<Genre> updateView, Genre genre) {
-		SubsonicFragment fragment = new SelectDirectoryFragment();
+		SubsonicFragment fragment = new GenreBrowserFragment();
 		Bundle args = new Bundle();
-		args.putString(Constants.INTENT_EXTRA_NAME_ALBUM_LIST_TYPE, "genres");
-		args.putInt(Constants.INTENT_EXTRA_NAME_ALBUM_LIST_SIZE, 20);
-		args.putInt(Constants.INTENT_EXTRA_NAME_ALBUM_LIST_OFFSET, 0);
-		args.putString(Constants.INTENT_EXTRA_NAME_ALBUM_LIST_EXTRA, genre.getName());
+		args.putString(GenreBrowserFragment.ARG_GENRE, genre.getName());
 		fragment.setArguments(args);
 
 		replaceFragment(fragment);

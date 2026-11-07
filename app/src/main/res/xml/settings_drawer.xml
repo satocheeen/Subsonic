@@ -52,7 +52,7 @@
 			android:key="openToTab"
 			android:entryValues="@array/defaultDrawerItemsDescriptions"
 			android:entries="@array/defaultDrawerItems"
-			android:defaultValue="Home"/>
+			android:defaultValue="Starred"/>
 
 		<github.daneren2005.dsub.view.SeekBarPreference
 			android:title="@string/settings.chat_refresh"

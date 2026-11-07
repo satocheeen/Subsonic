@@ -142,4 +142,7 @@
 			android:key="showRating"
 			android:defaultValue="true"/>
 	</PreferenceCategory>
+    <ListPreference android:key="openToTab" android:title="@string/settings.open_to_tab"
+        android:entries="@array/defaultDrawerItems" android:entryValues="@array/defaultDrawerItemsDescriptions"
+        android:defaultValue="Starred"/>
 </PreferenceScreen>

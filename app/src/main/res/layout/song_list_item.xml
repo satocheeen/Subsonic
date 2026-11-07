@@ -6,6 +6,11 @@
 		android:layout_height="?android:attr/listPreferredItemHeight"
 		android:background="?attr/selectableItemBackground">
 
+    <github.daneren2005.dsub.view.RecyclingImageView
+        android:id="@+id/song_coverart" android:layout_width="@dimen/AlbumArt.Small"
+        android:layout_height="@dimen/AlbumArt.Small" android:scaleType="centerCrop"
+        android:visibility="gone" android:importantForAccessibility="no"/>
+
     <LinearLayout android:orientation="vertical"
                   android:layout_width="0dip"
                   android:layout_height="wrap_content"

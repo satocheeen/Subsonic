@@ -60,6 +60,7 @@ import github.daneren2005.dsub.fragments.MainFragment;
 import github.daneren2005.dsub.fragments.NowPlayingFragment;
 import github.daneren2005.dsub.fragments.SearchFragment;
 import github.daneren2005.dsub.fragments.SelectArtistFragment;
+import github.daneren2005.dsub.fragments.SelectGenreFragment;
 import github.daneren2005.dsub.fragments.SelectBookmarkFragment;
 import github.daneren2005.dsub.fragments.SelectDirectoryFragment;
 import github.daneren2005.dsub.fragments.SelectInternetRadioStationFragment;
@@ -151,7 +152,7 @@ public class SubsonicFragmentActivity extends SubsonicActivity implements Downlo
 					getIntent().putExtra(Constants.INTENT_EXTRA_FRAGMENT_TYPE, fragmentType);
 					lastSelectedPosition = getDrawerItemId(fragmentType);
 				} else {
-					lastSelectedPosition = R.id.drawer_home;
+					lastSelectedPosition = R.id.drawer_starred;
 				}
 
 				MenuItem item = drawerList.getMenu().findItem(lastSelectedPosition);
@@ -515,7 +516,7 @@ public class SubsonicFragmentActivity extends SubsonicActivity implements Downlo
 	public void setContentView(int viewId) {
 		super.setContentView(viewId);
 		if(drawerToggle != null){
-			drawerToggle.setDrawerIndicatorEnabled(true);
+			drawerToggle.setDrawerIndicatorEnabled(false);
 		}
 	}
 
@@ -642,7 +643,7 @@ public class SubsonicFragmentActivity extends SubsonicActivity implements Downlo
 			secondaryContainer.setVisibility(View.GONE);
 		}
 		if(drawerToggle != null) {
-			drawerToggle.setDrawerIndicatorEnabled(true);
+			drawerToggle.setDrawerIndicatorEnabled(false);
 		}
 	}
 
@@ -657,7 +658,15 @@ public class SubsonicFragmentActivity extends SubsonicActivity implements Downlo
 	}
 
 	private SubsonicFragment getNewFragment(String fragmentType) {
-		if("Artist".equals(fragmentType)) {
+		if("Genres".equals(fragmentType) && !Util.isOffline(this)) {
+			return new SelectGenreFragment();
+		} else if("Starred".equals(fragmentType)) {
+			SelectDirectoryFragment fragment = new SelectDirectoryFragment();
+			Bundle args = new Bundle();
+			args.putString(Constants.INTENT_EXTRA_NAME_ALBUM_LIST_TYPE, "starred");
+			fragment.setArguments(args);
+			return fragment;
+		} else if("Artist".equals(fragmentType)) {
 			return new SelectArtistFragment();
 		} else if("Playlist".equals(fragmentType)) {
 			return new SelectPlaylistFragment();
@@ -676,7 +685,11 @@ public class SubsonicFragmentActivity extends SubsonicActivity implements Downlo
 		} else if("Download".equals(fragmentType)) {
 			return new DownloadFragment();
 		} else {
-			return new MainFragment();
+			SelectDirectoryFragment fragment = new SelectDirectoryFragment();
+            Bundle args = new Bundle();
+            args.putString(Constants.INTENT_EXTRA_NAME_ALBUM_LIST_TYPE, "starred");
+            fragment.setArguments(args);
+            return fragment;
 		}
 	}
 

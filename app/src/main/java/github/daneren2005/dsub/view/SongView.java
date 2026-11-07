@@ -29,6 +29,7 @@ import github.daneren2005.dsub.domain.PodcastEpisode;
 import github.daneren2005.dsub.service.DownloadService;
 import github.daneren2005.dsub.service.DownloadFile;
 import github.daneren2005.dsub.util.DrawableTint;
+import github.daneren2005.dsub.util.ImageLoader;
 import github.daneren2005.dsub.util.SongDBHandler;
 import github.daneren2005.dsub.util.ThemeUtil;
 import github.daneren2005.dsub.util.Util;
@@ -74,10 +75,24 @@ public class SongView extends UpdateView2<MusicDirectory.Entry, Boolean> {
 	private boolean isPlayed = false;
 	private boolean isPlayedShown = false;
 	private boolean showAlbum = false;
+	private final ImageLoader imageLoader;
 
 	public SongView(Context context) {
+        this(context, null);
+    }
+
+    public SongView(Context context, ImageLoader imageLoader) {
 		super(context);
+        this.imageLoader = imageLoader;
 		LayoutInflater.from(context).inflate(R.layout.song_list_item, this, true);
+        if (imageLoader != null) {
+            coverArtView = findViewById(R.id.song_coverart);
+            coverArtView.setVisibility(View.VISIBLE);
+            View row = getChildAt(0);
+            android.view.ViewGroup.LayoutParams params = row.getLayoutParams();
+            params.height = getResources().getDimensionPixelSize(R.dimen.AlbumArt_Small);
+            row.setLayoutParams(params);
+        }
 
 		trackTextView = (TextView) findViewById(R.id.song_track);
 		titleTextView = (TextView) findViewById(R.id.song_title);
@@ -98,6 +113,7 @@ public class SongView extends UpdateView2<MusicDirectory.Entry, Boolean> {
 
 	public void setObjectImpl(MusicDirectory.Entry song, Boolean checkable) {
 		this.checkable = checkable;
+		if (imageLoader != null) onUpdateImageView();
 
 		StringBuilder artist = new StringBuilder(40);
 
@@ -372,4 +388,13 @@ public class SongView extends UpdateView2<MusicDirectory.Entry, Boolean> {
 	public void setShowAlbum(boolean showAlbum) {
 		this.showAlbum = showAlbum;
 	}
+
+    @Override
+    public void onUpdateImageView() {
+        if (imageLoader != null && item != null) {
+            if (imageTask != null) imageTask.cancel();
+            imageTask = imageLoader.loadImage(coverArtView, item, false, true);
+        }
+    }
+
 }

@@ -229,6 +229,14 @@ public class SettingsFragment extends PreferenceCompatFragment implements Shared
 	@Override
 	protected void onInitPreferences(PreferenceScreen preferenceScreen) {
 		this.setTitle(preferenceScreen.getTitle());
+        CheckBoxPreference offline = (CheckBoxPreference) findPreference("navigationOffline");
+        if (offline != null) {
+            offline.setChecked(Util.isOffline(context));
+            offline.setOnPreferenceChangeListener((preference, value) -> {
+                context.toggleOffline();
+                return true;
+            });
+        }
 
 		internalSSID = Util.getSSID(context);
 		if (internalSSID == null) {
