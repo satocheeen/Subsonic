@@ -614,9 +614,9 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 			}
 		}
         if (bottomNavigation != null) {
-            TextView server = new TextView(this);
+            Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+            TextView server = new TextView(toolbar != null ? toolbar.getContext() : this);
             server.setText(Util.isOffline(this) ? getString(R.string.main_offline) : Util.getServerName(this));
-            server.setTextColor(navigationColor(android.R.attr.textColorPrimary));
             server.setTextSize(12);
             server.setMaxWidth(dp(100));
             server.setSingleLine(true);
