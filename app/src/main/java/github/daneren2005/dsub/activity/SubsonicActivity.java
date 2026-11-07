@@ -331,6 +331,12 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 					}
 
 					switch (menuItem.getItemId()) {
+						case R.id.drawer_starred:
+							drawerItemSelected("Starred");
+							return true;
+						case R.id.drawer_genres:
+							drawerItemSelected("Genres");
+							return true;
 						case R.id.drawer_home:
 							drawerItemSelected("Home");
 							return true;
@@ -632,6 +638,7 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 		MenuItem offlineMenuItem = drawerList.getMenu().findItem(R.id.drawer_offline);
 		if(Util.isOffline(this)) {
 			setDrawerItemVisible(R.id.drawer_home, false);
+			setDrawerItemVisible(R.id.drawer_genres, false);
 
 			if(lastSelectedPosition == 0 || lastSelectedPosition == R.id.drawer_home) {
 				String newFragment = Util.openToTab(this);
@@ -1223,6 +1230,10 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 		}
 
 		switch(fragmentType) {
+			case "Starred":
+				return R.id.drawer_starred;
+			case "Genres":
+				return R.id.drawer_genres;
 			case "Home":
 				return R.id.drawer_home;
 			case "Artist":

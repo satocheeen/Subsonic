@@ -1,0 +1,9 @@
+<resources>
+    <string name="genre_albums">Albums</string>
+    <string name="genre_artists">Artists</string>
+    <string name="genre_years">Years</string>
+    <string name="genre_unknown_artist">Unknown artist</string>
+    <string name="genre_unknown_year">Unknown year</string>
+    <string name="genre_decade">%1$ds</string>
+    <string name="genre_load_error">Could not load this genre. Pull down to retry.</string>
+</resources>

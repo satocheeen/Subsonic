@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string-array name="defaultDrawerItems">
+		<item>@string/main.albums_starred</item>
+		<item>@string/main.albums_genres</item>
 		<item>@string/button_bar.home</item>
 		<item>@string/button_bar.browse</item>
 		<item>@string/button_bar.playlists</item>
@@ -12,6 +14,8 @@
 	</string-array>
 
 	<string-array name="defaultDrawerItemsDescriptions">
+		<item>Starred</item>
+		<item>Genres</item>
 		<item>Home</item>
 		<item>Artist</item>
 		<item>Playlist</item>
