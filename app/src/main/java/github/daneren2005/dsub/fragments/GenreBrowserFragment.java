@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.support.v7.widget.AppCompatButton;
 import android.widget.TextView;
 
 import java.io.Serializable;
@@ -27,6 +26,7 @@ import github.daneren2005.dsub.domain.MusicDirectory.Entry;
 import github.daneren2005.dsub.service.MusicService;
 import github.daneren2005.dsub.service.MusicServiceFactory;
 import github.daneren2005.dsub.util.Constants;
+import github.daneren2005.dsub.util.DrawableTint;
 import github.daneren2005.dsub.util.LoadingTask;
 import github.daneren2005.dsub.util.Util;
 import github.daneren2005.dsub.util.TabBackgroundTask;
@@ -75,11 +75,6 @@ public class GenreBrowserFragment extends SubsonicFragment implements SectionAda
         layout.setOrientation(LinearLayout.VERTICAL);
         View content = inflater.inflate(R.layout.abstract_recycler_fragment, layout, false);
         if (!getArguments().containsKey(ARG_GROUP)) {
-            AppCompatButton shuffle = new AppCompatButton(context);
-            shuffle.setText(R.string.genre_shuffle_all);
-            shuffle.setOnClickListener(v -> shuffleGenre());
-            layout.addView(shuffle, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT));
             TabLayout tabs = new TabLayout(context);
             tabs.setTabMode(TabLayout.MODE_FIXED);
             int[] titles = {R.string.genre_albums, R.string.genre_artists, R.string.genre_years};
@@ -112,7 +107,23 @@ public class GenreBrowserFragment extends SubsonicFragment implements SectionAda
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (!primaryFragment) return;
+        if (!getArguments().containsKey(ARG_GROUP)) {
+            // The activity adds the server name afterwards with the same order, placing it to our right.
+            menu.add(Menu.NONE, R.id.menu_genre_shuffle_all, 0, R.string.genre_shuffle_all)
+                    .setIcon(DrawableTint.getDrawableRes(context, R.attr.shuffle))
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
         onFinishSetupOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_genre_shuffle_all) {
+            shuffleGenre();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

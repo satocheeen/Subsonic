@@ -8,4 +8,5 @@
     <string name="genre_load_error">Could not load this genre. Pull down to retry.</string>
     <string name="genre_shuffle_all">Shuffle all songs</string>
     <string name="genre_shuffle_loading">Loading songs: %1$d</string>
+    <item type="id" name="menu_genre_shuffle_all"/>
 </resources>
