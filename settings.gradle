@@ -1,3 +1,11 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
 // A normal clone (or GitHub ZIP download) does not include submodule contents.
 // Fail before Gradle reports an opaque variant/configuration matching error.
 if (!new File(settingsDir, 'ServerProxy/build.gradle').isFile()) {
@@ -12,3 +20,6 @@ include ':app'
 
 include ':ServerProxy'
 project(':ServerProxy').projectDir = new File('ServerProxy')
+
+// Keep the upstream source pinned while using our maintained build configuration.
+project(':ServerProxy').buildFileName = '../gradle/serverproxy.gradle'

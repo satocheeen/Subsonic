@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Install Java 17 for Android SDK tools
+      - name: Install Java 17 for Gradle and Android SDK tools
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -26,13 +26,8 @@ jobs:
         uses: android-actions/setup-android@v3
         with:
           packages: platform-tools
-      - name: Install Android 30 SDK and build tools
-        run: sdkmanager "platforms;android-30" "build-tools;30.0.3"
-      - name: Switch to Java 8 for legacy Android Gradle Plugin
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '8'
+      - name: Install Android SDK and build tools
+        run: sdkmanager "platforms;android-30" "build-tools;35.0.0"
       - name: Build FLOSS debug APK
         run: bash gradlew --no-daemon --stacktrace assembleFlossDebug
       - name: Upload debug APK

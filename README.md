@@ -17,9 +17,15 @@ git submodule update --init --recursive
 Then sync the project with Gradle in Android Studio and rebuild. GitHub's ZIP
 download does not contain the submodule sources; use a Git clone for building.
 
-This branch currently uses the legacy Gradle 4.8 / Android Gradle Plugin 3.2.1
-toolchain. Use JDK 8 as the Gradle JDK, install Android SDK platforms 30 and 27
-(ServerProxy uses 27), and Android SDK Build Tools 30.0.3. Build the `flossDebug`
+This branch uses Gradle 8.11.1 / Android Gradle Plugin 8.9.2. Set Android
+Studio's **Gradle JDK** to JDK 17 or 21 (File > Settings > Build, Execution,
+Deployment > Build Tools > Gradle). For terminal builds, set `JAVA_HOME` to the
+same JDK. JDK 8 and 11 are no longer supported for this build.
+
+Install Android SDK platform 30 and SDK Build Tools 35.0.0. ServerProxy uses
+this repository's `gradle/serverproxy.gradle` configuration, so its upstream
+Gradle 3.2.1 configuration is not used. Its source remains a pinned submodule.
+Build the `flossDebug`
 variant, or run:
 
 ```sh

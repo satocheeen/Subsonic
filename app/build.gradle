@@ -1,6 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
+	namespace 'github.daneren2005.dsub'
+	buildFeatures { buildConfig true }
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
+
 	compileSdkVersion 30
 
 	defaultConfig {
@@ -24,13 +31,11 @@ android {
 			minifyEnabled true
 			shrinkResources true
 			proguardFiles 'proguard.cfg'
-			zipAlignEnabled true
 		}
 		fix {
 			minifyEnabled true
 			shrinkResources true
 			proguardFiles 'proguard.cfg'
-			zipAlignEnabled true
 		}
 	}
 	flavorDimensions "version"
@@ -64,11 +69,11 @@ android {
 dependencies {
 	implementation project(path: ':ServerProxy')
 	implementation fileTree(include: ['*.jar'], dir: 'libs')
-	implementation 'com.android.support:support-v4:27.1.+'
-	implementation 'com.android.support:appcompat-v7:27.1.+'
-	implementation 'com.android.support:mediarouter-v7:27.1.+'
-	implementation 'com.android.support:recyclerview-v7:27.1.+'
-	implementation 'com.android.support:design:27.1.+'
+	implementation 'com.android.support:support-v4:27.1.1'
+	implementation 'com.android.support:appcompat-v7:27.1.1'
+	implementation 'com.android.support:mediarouter-v7:27.1.1'
+	implementation 'com.android.support:recyclerview-v7:27.1.1'
+	implementation 'com.android.support:design:27.1.1'
 	googleImplementation 'com.google.android.gms:play-services-cast:8.1.0'
 	implementation 'com.sothree.slidinguppanel:library:3.0.0'
 	implementation 'de.hdodenhof:circleimageview:1.2.1'
