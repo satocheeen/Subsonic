@@ -1,0 +1,30 @@
+apply plugin: 'com.android.library'
+
+android {
+    namespace 'github.daneren2005.serverproxy'
+    compileSdk 30
+
+    defaultConfig {
+        minSdk 15
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile rootProject.file('gradle/serverproxy/AndroidManifest.xml')
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation 'com.android.support:support-v4:27.1.1'
+}

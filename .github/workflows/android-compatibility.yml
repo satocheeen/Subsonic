@@ -1,0 +1,44 @@
+name: Android compatibility baseline
+
+on:
+  pull_request:
+    branches:
+      - edge
+  workflow_dispatch:
+
+# PR updates already trigger this workflow; avoid duplicate push builds.
+concurrency:
+  group: android-build-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ['17', '21']
+    steps:
+      - name: Checkout sources and ServerProxy
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install Java ${{ matrix.java }} for Gradle and Android SDK tools
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+      - name: Prepare Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+      - name: Install Android SDK and build tools
+        run: sdkmanager "platforms;android-30" "build-tools;35.0.0"
+      - name: Build FLOSS debug APK
+        run: bash gradlew --no-daemon --stacktrace assembleFlossDebug
+      - name: Upload debug APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dsub-floss-debug-java-${{ matrix.java }}
+          path: app/build/outputs/apk/**/*.apk
