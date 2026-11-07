@@ -66,6 +66,14 @@ android {
 	}
 }
 
+// Jetty's old Orbit servlet artifact uses packaging "orbit", which modern AGP
+// cannot transform to DEX. Use the standard Servlet 3.0 API JAR instead.
+configurations.configureEach {
+    resolutionStrategy.dependencySubstitution {
+        substitute module('org.eclipse.jetty.orbit:javax.servlet') using module('javax.servlet:javax.servlet-api:3.0.1')
+    }
+}
+
 dependencies {
 	implementation project(path: ':ServerProxy')
 	implementation fileTree(include: ['*.jar'], dir: 'libs')
