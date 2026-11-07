@@ -152,7 +152,7 @@ public class SubsonicFragmentActivity extends SubsonicActivity implements Downlo
 					getIntent().putExtra(Constants.INTENT_EXTRA_FRAGMENT_TYPE, fragmentType);
 					lastSelectedPosition = getDrawerItemId(fragmentType);
 				} else {
-					lastSelectedPosition = R.id.drawer_home;
+					lastSelectedPosition = R.id.drawer_starred;
 				}
 
 				MenuItem item = drawerList.getMenu().findItem(lastSelectedPosition);
@@ -516,7 +516,7 @@ public class SubsonicFragmentActivity extends SubsonicActivity implements Downlo
 	public void setContentView(int viewId) {
 		super.setContentView(viewId);
 		if(drawerToggle != null){
-			drawerToggle.setDrawerIndicatorEnabled(true);
+			drawerToggle.setDrawerIndicatorEnabled(false);
 		}
 	}
 
@@ -643,7 +643,7 @@ public class SubsonicFragmentActivity extends SubsonicActivity implements Downlo
 			secondaryContainer.setVisibility(View.GONE);
 		}
 		if(drawerToggle != null) {
-			drawerToggle.setDrawerIndicatorEnabled(true);
+			drawerToggle.setDrawerIndicatorEnabled(false);
 		}
 	}
 
@@ -658,7 +658,7 @@ public class SubsonicFragmentActivity extends SubsonicActivity implements Downlo
 	}
 
 	private SubsonicFragment getNewFragment(String fragmentType) {
-		if("Genres".equals(fragmentType)) {
+		if("Genres".equals(fragmentType) && !Util.isOffline(this)) {
 			return new SelectGenreFragment();
 		} else if("Starred".equals(fragmentType)) {
 			SelectDirectoryFragment fragment = new SelectDirectoryFragment();
@@ -685,7 +685,11 @@ public class SubsonicFragmentActivity extends SubsonicActivity implements Downlo
 		} else if("Download".equals(fragmentType)) {
 			return new DownloadFragment();
 		} else {
-			return new MainFragment();
+			SelectDirectoryFragment fragment = new SelectDirectoryFragment();
+            Bundle args = new Bundle();
+            args.putString(Constants.INTENT_EXTRA_NAME_ALBUM_LIST_TYPE, "starred");
+            fragment.setArguments(args);
+            return fragment;
 		}
 	}
 

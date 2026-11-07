@@ -9,10 +9,12 @@
 			android:title="@string/main.albums_genres"/>
 		<item
 			android:id="@+id/drawer_home"
+			android:visible="false"
 			android:icon="?attr/drawerHome"
 			android:title="@string/button_bar.home"/>
 		<item
 			android:id="@+id/drawer_library"
+			android:visible="false"
 			android:icon="?attr/drawerLibrary"
 			android:title="@string/button_bar.browse"/>
 		<item

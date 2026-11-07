@@ -486,7 +486,9 @@ public final class Util {
 
 	public static String openToTab(Context context) {
 		SharedPreferences prefs = getPreferences(context);
-		return prefs.getString(Constants.PREFERENCES_KEY_OPEN_TO_TAB, null);
+		String tab = prefs.getString(Constants.PREFERENCES_KEY_OPEN_TO_TAB, "Starred");
+        if ("Playlist".equals(tab) || ("Genres".equals(tab) && !isOffline(context))) return tab;
+        return "Starred";
 	}
 
 	public static boolean disableExitPrompt(Context context) {

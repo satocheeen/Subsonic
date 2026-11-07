@@ -59,6 +59,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -95,6 +99,7 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 	protected static boolean fullScreen;
 	protected static boolean actionbarColored;
 	private static final int MENU_GROUP_SERVER = 10;
+	private static final int MENU_SERVER_PICKER = 11001;
 	private static final int MENU_ITEM_SERVER_BASE = 100;
 	public static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
 	public static final int PERMISSIONS_REQUEST_LOCATION = 2;
@@ -123,6 +128,18 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 	TextView drawerUserName;
 	int lastSelectedPosition = 0;
 	boolean showingTabs = true;
+    private LinearLayout bottomNavigation;
+    private TextView downloadIndicator;
+    private final Runnable downloadStatus = new Runnable() {
+        @Override public void run() {
+            if (downloadIndicator != null) {
+                DownloadService service = getDownloadService();
+                downloadIndicator.setVisibility(service != null && !service.getBackgroundDownloads().isEmpty()
+                        ? View.VISIBLE : View.GONE);
+            }
+            handler.postDelayed(this, 1000);
+        }
+    };
 	boolean drawerOpen = false;
 	SharedPreferences.OnSharedPreferenceChangeListener preferencesListener;
 
@@ -281,6 +298,15 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 		// If this is in onStart is causes crashes when rotating screen in offline mode
 		// Actual root cause of error is `drawerItemSelected(newFragment);` in the offline mode branch of code
 		populateTabs();
+		updateBottomNavigation();
+		handler.removeCallbacks(downloadStatus);
+		handler.post(downloadStatus);
+	}
+
+	@Override
+	protected void onPause() {
+		handler.removeCallbacks(downloadStatus);
+		super.onPause();
 	}
 
 	@Override
@@ -455,7 +481,7 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 				}
 			};
 			drawer.setDrawerListener(drawerToggle);
-			drawerToggle.setDrawerIndicatorEnabled(true);
+			drawerToggle.setDrawerIndicatorEnabled(false);
 
 			drawer.setOnTouchListener(new View.OnTouchListener() {
 				public boolean onTouch(View v, MotionEvent event) {
@@ -467,6 +493,15 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 				}
 			});
 		}
+
+        if (!isTv()) {
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            drawerList.setVisibility(View.GONE);
+            drawerToggle.setDrawerIndicatorEnabled(false);
+            Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+            if (toolbar != null) toolbar.setNavigationOnClickListener(v -> onBackPressed());
+            setupBottomNavigation();
+        }
 
 		// Check whether this is a tablet or not
 		secondaryContainer = findViewById(R.id.fragment_second_container);
@@ -569,6 +604,23 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 				Log.w(TAG, "Error on creating options menu", e);
 			}
 		}
+        if (bottomNavigation != null) {
+            TextView server = new TextView(this);
+            server.setText(Util.isOffline(this) ? getString(R.string.main_offline) : Util.getServerName(this));
+            server.setTextColor(navigationColor(android.R.attr.textColorPrimary));
+            server.setTextSize(12);
+            server.setMaxWidth(dp(100));
+            server.setSingleLine(true);
+            server.setEllipsize(TextUtils.TruncateAt.END);
+            server.setGravity(Gravity.CENTER);
+            server.setPadding(dp(8), 0, dp(8), 0);
+            server.setMinimumHeight(dp(48));
+            server.setContentDescription(getString(R.string.settings_servers_title));
+            server.setOnClickListener(v -> showServerPicker());
+            menu.add(Menu.NONE, MENU_SERVER_PICKER, 0, getString(R.string.settings_servers_title))
+                    .setActionView(server).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            updateBottomNavigation();
+        }
 		return true;
 	}
 	@Override
@@ -640,10 +692,10 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 			setDrawerItemVisible(R.id.drawer_home, false);
 			setDrawerItemVisible(R.id.drawer_genres, false);
 
-			if(lastSelectedPosition == 0 || lastSelectedPosition == R.id.drawer_home) {
+			if(lastSelectedPosition == 0 || lastSelectedPosition == R.id.drawer_home || lastSelectedPosition == R.id.drawer_genres) {
 				String newFragment = Util.openToTab(this);
-				if(newFragment == null || "Home".equals(newFragment)) {
-					newFragment = "Artist";
+				if(newFragment == null || "Home".equals(newFragment) || "Genres".equals(newFragment)) {
+					newFragment = "Starred";
 				}
 
 				lastSelectedPosition = getDrawerItemId(newFragment);
@@ -915,6 +967,7 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 	}
 
 	protected void recreateSpinner() {
+		updateBottomNavigation();
 		if(currentFragment == null || currentFragment.getTitle() == null) {
 			return;
 		}
@@ -945,7 +998,7 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 				getSupportActionBar().setDisplayShowCustomEnabled(true);
 			}
 
-			if(drawerToggle.isDrawerIndicatorEnabled()) {
+			if(drawerToggle != null) {
 				getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 				drawerToggle.setDrawerIndicatorEnabled(false);
 				getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -954,7 +1007,8 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 			getSupportActionBar().setDisplayShowTitleEnabled(true);
 			getSupportActionBar().setTitle(currentFragment.getTitle());
 			getSupportActionBar().setDisplayShowCustomEnabled(false);
-			drawerToggle.setDrawerIndicatorEnabled(true);
+			drawerToggle.setDrawerIndicatorEnabled(false);
+			getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 		}
 	}
 
@@ -1086,6 +1140,94 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 	public void closeNowPlaying() {
 
 	}
+
+    private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
+
+    private int navigationColor(int attribute) {
+        TypedValue value = new TypedValue();
+        getTheme().resolveAttribute(attribute, value, true);
+        return value.resourceId != 0 ? ContextCompat.getColor(this, value.resourceId) : value.data;
+    }
+
+    private void setupBottomNavigation() {
+        bottomNavigation = (LinearLayout) findViewById(R.id.bottom_navigation);
+        if (bottomNavigation == null) return;
+        int[] ids = {R.id.drawer_starred, R.id.drawer_genres, R.id.drawer_playlists, R.id.drawer_settings};
+        int[] titles = {R.string.main_albums_starred, R.string.main_albums_genres,
+                R.string.button_bar_playlists, R.string.menu_settings};
+        int[] icons = {R.drawable.ic_drawer_starred, R.drawable.ic_nav_genres,
+                R.drawable.ic_nav_playlists, R.drawable.ic_nav_settings};
+        for (int i = 0; i < ids.length; i++) {
+            final int id = ids[i];
+            LinearLayout button = new LinearLayout(this);
+            button.setId(id);
+            button.setOrientation(LinearLayout.VERTICAL);
+            button.setGravity(Gravity.CENTER);
+            TypedValue background = new TypedValue();
+            getTheme().resolveAttribute(android.R.attr.selectableItemBackground, background, true);
+            button.setBackgroundResource(background.resourceId);
+            button.setFocusable(true);
+            ImageView icon = new ImageView(this);
+            icon.setImageResource(icons[i]);
+            icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            button.addView(icon, new LinearLayout.LayoutParams(dp(24), dp(24)));
+            TextView label = new TextView(this);
+            label.setText(titles[i]);
+            label.setTextSize(11);
+            label.setSingleLine(true);
+            label.setGravity(Gravity.CENTER);
+            button.addView(label);
+            button.setContentDescription(getString(titles[i]));
+            button.setOnClickListener(v -> {
+                if (id == R.id.drawer_settings) {
+                    if (!(this instanceof SettingsActivity)) startActivity(new Intent(this, SettingsActivity.class));
+                    else while (!backStack.isEmpty()) removeCurrent();
+                } else if (id != lastSelectedPosition || !backStack.isEmpty()) {
+                    lastSelectedPosition = id;
+                    drawerItemSelected(id == R.id.drawer_starred ? "Starred" : id == R.id.drawer_genres ? "Genres" : "Playlist");
+                }
+                updateBottomNavigation();
+            });
+            bottomNavigation.addView(button, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        }
+        downloadIndicator = (TextView) findViewById(R.id.navigation_downloads);
+        if (downloadIndicator != null) downloadIndicator.setOnClickListener(v -> {
+            if (!(currentFragment instanceof github.daneren2005.dsub.fragments.DownloadFragment)) {
+                github.daneren2005.dsub.fragments.DownloadFragment fragment = new github.daneren2005.dsub.fragments.DownloadFragment();
+                replaceFragment(fragment, fragment.getSupportTag());
+            }
+        });
+    }
+
+    private void updateBottomNavigation() {
+        if (bottomNavigation == null) return;
+        int selected = this instanceof SettingsActivity ? R.id.drawer_settings : lastSelectedPosition;
+        for (int i = 0; i < bottomNavigation.getChildCount(); i++) {
+            LinearLayout button = (LinearLayout) bottomNavigation.getChildAt(i);
+            boolean active = button.getId() == selected;
+            boolean enabled = button.getId() != R.id.drawer_genres || !Util.isOffline(this);
+            button.setEnabled(enabled);
+            button.setAlpha(enabled ? 1f : 0.4f);
+            button.setSelected(active);
+            int color = navigationColor(active ? R.attr.colorAccent : android.R.attr.textColorSecondary);
+            ((ImageView) button.getChildAt(0)).setColorFilter(color);
+            ((TextView) button.getChildAt(1)).setTextColor(color);
+        }
+        if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(!backStack.isEmpty());
+    }
+
+    private void showServerPicker() {
+        int count = Util.getServerCount(this);
+        String[] names = new String[count];
+        for (int i = 0; i < count; i++) names[i] = Util.getServerName(this, i + 1);
+        new AlertDialog.Builder(this).setTitle(R.string.settings_servers_title)
+                .setSingleChoiceItems(names, Util.getActiveServer(this) - 1, (dialog, which) -> {
+                    if (Util.isOffline(this)) toggleOffline();
+                    setActiveServer(which + 1);
+                    supportInvalidateOptionsMenu();
+                    dialog.dismiss();
+                }).setNegativeButton(R.string.common_cancel, null).show();
+    }
 
 	public void setActiveServer(int instance) {
 		if (Util.getActiveServer(this) != instance) {
@@ -1226,16 +1368,16 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 	
 	public int getDrawerItemId(String fragmentType) {
 		if(fragmentType == null) {
-			return R.id.drawer_home;
+			return R.id.drawer_starred;
 		}
 
 		switch(fragmentType) {
 			case "Starred":
 				return R.id.drawer_starred;
 			case "Genres":
-				return R.id.drawer_genres;
+				return Util.isOffline(this) ? R.id.drawer_starred : R.id.drawer_genres;
 			case "Home":
-				return R.id.drawer_home;
+				return R.id.drawer_starred;
 			case "Artist":
 				return R.id.drawer_library;
 			case "Playlist":

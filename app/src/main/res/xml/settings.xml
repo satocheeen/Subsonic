@@ -12,10 +12,8 @@
 		android:key="appearance">
 	</PreferenceScreen>
 
-	<PreferenceScreen
-		android:title="@string/settings.drawer_items_title"
-		android:key="drawer">
-	</PreferenceScreen>
+    <CheckBoxPreference android:key="navigationOffline" android:title="@string/main.offline"
+        android:defaultValue="false" android:persistent="false"/>
 
 	<PreferenceScreen
 		android:title="@string/settings.cache_screen_title"
