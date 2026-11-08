@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+	<release version="6.1.0" versioncode="301" releasedate="11/08/2026">
+		<change>Add artist, album and lyrics shortcuts directly to the Now Playing screen</change>
+	</release>
 	<release version="6.0.0" versioncode="300" releasedate="11/07/2026">
 		<change>Update to Android　11 target level</change>
 		<change>Improve UI</change>
