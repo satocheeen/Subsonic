@@ -1,3 +1,5 @@
+import com.android.build.api.variant.ResValue
+
 apply plugin: 'com.android.application'
 
 android {
@@ -19,14 +21,13 @@ android {
 		setProperty("archivesBaseName", "DSub $versionName")
 		resConfigs "de", "es", "fr", "hu", "nl", "pt-rPT", "ru", "sv", "zh"
 		vectorDrawables.useSupportLibrary = true
-		resValue 'string', 'account_type.subsonic', applicationId + ".subsonic"
-		resValue 'string', 'provider.search', applicationId + ".provider.DSubSearchProvider"
-		resValue 'string', 'provider.playlist', applicationId + ".playlists.provider"
-		resValue 'string', 'provider.podcast', applicationId + ".podcasts.provider"
-		resValue 'string', 'provider.starred', applicationId + ".starred.provider"
-		resValue 'string', 'provider.recently_added', applicationId + ".mostrecent.provider"
+		manifestPlaceholders.dsubAppLabel = '@string/common.appname'
 	}
 	buildTypes {
+		debug {
+			applicationIdSuffix '.debug'
+			manifestPlaceholders.dsubAppLabel = 'DSub Debug'
+		}
 		release {
 			minifyEnabled true
 			shrinkResources true
@@ -62,6 +63,25 @@ android {
 	signingConfigs {
 		debug {
 			storeFile file('../debug.keystore')
+		}
+	}
+}
+
+// Android registers provider authorities and account types across installed apps.
+androidComponents {
+	onVariants(selector().all()) { variant ->
+		[
+			'account_type.subsonic': '.subsonic',
+			'provider.search': '.provider.DSubSearchProvider',
+			'provider.playlist': '.playlists.provider',
+			'provider.podcast': '.podcasts.provider',
+			'provider.starred': '.starred.provider',
+			'provider.recently_added': '.mostrecent.provider',
+		].each { name, suffix ->
+			def key = variant.makeResValueKey('string', name)
+			variant.resValues.put(key, variant.applicationId.map { id ->
+				new ResValue(id + suffix, null)
+			})
 		}
 	}
 }
