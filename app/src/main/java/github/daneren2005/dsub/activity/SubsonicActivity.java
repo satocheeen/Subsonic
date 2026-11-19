@@ -613,6 +613,10 @@ public class SubsonicActivity extends AppCompatActivity implements OnItemSelecte
 				Log.w(TAG, "Error on creating options menu", e);
 			}
 		}
+        // Every non-settings screen shares the same search entry, including the expanded player.
+        if (!(this instanceof SettingsActivity) && currentFragment != null) {
+            currentFragment.ensureSearchMenu(menu, menuInflater);
+        }
         if (bottomNavigation != null) {
             Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
             TextView server = new TextView(toolbar != null ? toolbar.getContext() : this);
