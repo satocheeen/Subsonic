@@ -183,12 +183,27 @@ public class SubsonicFragment extends Fragment implements SwipeRefreshLayout.OnR
 		this.context = context;
 	}
 
+    public void ensureSearchMenu(Menu menu, MenuInflater inflater) {
+        if (menu.findItem(R.id.menu_global_search) == null) {
+            inflater.inflate(R.menu.global_search, menu);
+        }
+        MenuItem item = menu.findItem(R.id.menu_global_search);
+        item.setVisible(true);
+        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        // Setup runs after the screen menu is complete so newly-added entries can submit queries too.
+        onFinishSetupOptionsMenu(menu);
+    }
+
 	protected void onFinishSetupOptionsMenu(final Menu menu) {
 		searchItem = menu.findItem(R.id.menu_global_search);
 		if(searchItem != null) {
 			searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
 			SearchManager searchManager = (SearchManager) context.getSystemService(Context.SEARCH_SERVICE);
 			SearchableInfo searchableInfo = searchManager.getSearchableInfo(context.getComponentName());
+            if (searchableInfo == null) {
+                searchableInfo = searchManager.getSearchableInfo(new android.content.ComponentName(context,
+                        github.daneren2005.dsub.activity.QueryReceiverActivity.class));
+            }
 			if(searchableInfo == null) {
 				Log.w(TAG, "Failed to get SearchableInfo");
 			} else {
