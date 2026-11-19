@@ -17,7 +17,7 @@ android {
 		minSdkVersion 15
 		targetSdkVersion 30
 		versionCode 209
-		versionName '6.1.0'
+		versionName '6.1.1'
 		setProperty("archivesBaseName", "DSub $versionName")
 		resConfigs "de", "es", "fr", "hu", "nl", "pt-rPT", "ru", "sv", "zh"
 		vectorDrawables.useSupportLibrary = true
