@@ -3,7 +3,7 @@
           android:installLocation="internalOnly">
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"
-		android:targetPackage="github.daneren2005.dsub"
+		android:targetPackage="${applicationId}"
 		android:label="Tests" />
 
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -35,7 +35,7 @@
 
     <supports-screens android:anyDensity="true" android:xlargeScreens="true" android:largeScreens="true" android:normalScreens="true" android:smallScreens="true"/>
 
-    <application android:label="@string/common.appname"
+    <application android:label="${dsubAppLabel}"
     	android:backupAgent="github.daneren2005.dsub.util.SettingsBackupAgent"
     	android:icon="@drawable/launch"
     	android:theme="@style/Theme.DSub.Light"
